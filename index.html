@@ -53,15 +53,16 @@
                 }
             }
             class Jugador {
-                constructor(ctx){
+                constructor(ctx, src){
                     this.ctx = ctx;
+                    this.src = src;
                     this.width = 50;
                     this.height = 108;
                     this.x = 100;
                     this.y = 395;
                     this.frameY = 1;
                     this.image = new Image();
-                    this.image.src = "imagenes/nose3.png";
+                    this.image.src = this.src;
                     this.events();
                     this.currentFrame = 0;
                     this.lastUpdate = performance.now();
@@ -105,7 +106,7 @@
                 }
             }
             const layers = ["backgroundLayers/layer-1.png", "backgroundLayers/layer-2.png", "backgroundLayers/layer-3.png", "backgroundLayers/layer-4.png", "backgroundLayers/layer-5.png"]
-            const jugador = new Jugador(ctx);
+            const jugador = new Jugador(ctx, "imagenes/nose3.png");
             const background1 = new Background(ctx, `${layers[0]}`, 0.2);
             const background2 = new Background(ctx, `${layers[1]}`, 0.4);
             const background3 = new Background(ctx, `${layers[2]}`, 0.6);
