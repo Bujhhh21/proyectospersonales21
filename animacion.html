@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Pruebas</title>
+        <style>
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 95vh;
+            }
+            .lienzo {
+                border: 1px solid black;
+                /* width: 2400px;
+                height: 720px; */
+            }
+        </style>
+    </head>
+    <body>
+        <canvas class="lienzo"></canvas>
+        <script>
+            let lienzo = document.querySelector(".lienzo");
+            let ctx = lienzo.getContext("2d");
+            // let canvasWidth = 1200;
+            let canvasHeight = 720;
+            let canvasWidth =  window.innerWidth/1.5;
+            // let canvasHeight =  window.innerHeight/1.5;
+            lienzo.width = canvasWidth;
+            lienzo.height = canvasHeight;
+            class Background {
+                constructor(ctx, src, speed){
+                    this.src = src
+                    this.ctx = ctx;
+                    this.width = 2400;
+                    this.height = 720;
+                    this.image = new Image();
+                    this.image.src = this.src;
+                    this.speed = speed;
+                    this.x = 0;
+                }
+                update(){
+                    if(this.x >= -2400){
+                        this.x -= 10 * this.speed;
+                    } else {
+                        this.x = 0;
+                    }
+                }
+                draw(){
+                    this.ctx.drawImage(this.image, this.x, 0, this.width, this.height);
+                    this.ctx.drawImage(this.image, this.x + this.width, 0, this.width, this.height);
+                }
+            }
+            class Jugador {
+                constructor(ctx){
+                    this.ctx = ctx;
+                    this.width = 50;
+                    this.height = 108;
+                    this.x = 100;
+                    this.y = 395;
+                    this.frameY = 1;
+                    this.image = new Image();
+                    this.image.src = "imagenes/nose3.png";
+                    this.events();
+                    this.currentFrame = 0;
+                    this.lastUpdate = performance.now();
+                    this.frameDuration = 100;
+                }
+                draw(){
+                    this.ctx.drawImage(this.image, (this.currentFrame * this.width),  (this.frameY * this.height), this.width, this.height, this.x, this.y, this.width * 2, this.height * 2);
+                }
+                update(timestamp){
+                    let deltaTime = timestamp - this.lastUpdate;
+                    if(deltaTime > this.frameDuration){
+                        this.currentFrame = (this.currentFrame + 1) % 4;
+                        this.lastUpdate = timestamp;
+                    }
+                }
+                events(){
+                    window.addEventListener("keydown", (e)=>{
+                        this.height = 108;
+                        switch (e.key) {
+                            case "ArrowLeft":
+                                this.frameY = 3;
+                                this.x -= 10;
+                                break;
+                            case "ArrowRight":
+                                this.height = 107;
+                                this.frameY = 1;
+                                this.x += 10;
+                                break;
+                            case "ArrowUp":
+                                this.frameY = 2;
+                                this.y -= 10;
+                                break;
+                            case "ArrowDown":
+                                this.frameY = 0;
+                                this.y += 10;
+                                break;
+                            default:
+                                break;
+                        }
+                    });
+                }
+            }
+            const layers = ["backgroundLayers/layer-1.png", "backgroundLayers/layer-2.png", "backgroundLayers/layer-3.png", "backgroundLayers/layer-4.png", "backgroundLayers/layer-5.png"]
+            const jugador = new Jugador(ctx);
+            const background1 = new Background(ctx, `${layers[0]}`, 0.2);
+            const background2 = new Background(ctx, `${layers[1]}`, 0.4);
+            const background3 = new Background(ctx, `${layers[2]}`, 0.6);
+            const background4 = new Background(ctx, `${layers[3]}`, 0.8);
+            const background5 = new Background(ctx, `${layers[4]}`, 1);
+            let fondo = [background1, background2, background3, background4, background5];
+            function animate(timestamp){
+                ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+                fondo.forEach(element => {
+                    element.draw();
+                    element.update();
+                });
+                jugador.draw();
+                jugador.update(timestamp);
+                
+                requestAnimationFrame(animate);
+            }
+            animate();
+        </script>
+    </body>
+</html>
