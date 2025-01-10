@@ -10,17 +10,73 @@
                 justify-content: center;
                 align-items: center;
                 height: 95vh;
+                flex-direction: column;
             }
             .lienzo {
                 border: 1px solid black;
                 /* width: 2400px;
                 height: 720px; */
             }
+            img {
+                width: 200px;
+                user-select: none;
+                -webkit-user-drag: none;
+            }
+            .contenedor-botones {
+                display: flex;
+                position: absolute;
+                margin: 100px;
+                width: 600px;
+                left: 140px;
+                top: 0px;
+            }
+            .derecha {
+                rotate: 0deg;
+                position: relative;
+                left: -408px;
+                top: 5px;
+            }
+            .izquierda {
+                rotate: 180deg;
+                position: relative;
+                left: 0;
+                top: 0;
+            }
+            .abajo {
+                rotate: 90deg;
+                position: relative;
+                left: -309px;
+                top: 100px;
+            }
+            .arriba {
+                rotate: 270deg;
+                position: relative;
+                left: -102px;
+                top: -95px;
+            }
         </style>
     </head>
     <body>
         <canvas class="lienzo"></canvas>
-        <script>
+        <div class="contenedor-botones">
+            <div class="izquierda"><img src="imagenes/flecha.png"></div>
+            <div class="arriba"><img src="imagenes/flecha.png"></div>
+            <div class="abajo"><img src="imagenes/flecha.png"></div>
+            <div class="derecha"><img src="imagenes/flecha.png"></div>
+        </div>
+    <script>
+            document.querySelectorAll("img").forEach(img => {
+                img.addEventListener("contextmenu", (e)=>{
+                    e.preventDefault();
+                });
+            });
+            let contenedor_botones = document.querySelector(".contenedor-botones");
+            let derecha = document.querySelector(".derecha");
+            let izquierda = document.querySelector(".izquierda");
+            let abajo = document.querySelector(".abajo");
+            let arriba = document.querySelector(".arriba");
+            let presion = 0;
+
             let lienzo = document.querySelector(".lienzo");
             let ctx = lienzo.getContext("2d");
             // let canvasWidth = 1200;
@@ -67,6 +123,7 @@
                     this.currentFrame = 0;
                     this.lastUpdate = performance.now();
                     this.frameDuration = 100;
+                    this.intervalId;
                 }
                 draw(){
                     this.ctx.drawImage(this.image, (this.currentFrame * this.width),  (this.frameY * this.height), this.width, this.height, this.x, this.y, this.width * 2, this.height * 2);
@@ -78,31 +135,71 @@
                         this.lastUpdate = timestamp;
                     }
                 }
+                startAction(action){
+                        this.intervalId = setInterval(action, 100);
+                }
+                stopAction(){
+                    clearInterval(this.intervalId);
+                }
                 events(){
                     window.addEventListener("keydown", (e)=>{
                         this.height = 108;
                         switch (e.key) {
                             case "ArrowLeft":
-                                this.frameY = 3;
-                                this.x -= 10;
+                                this.left();
                                 break;
                             case "ArrowRight":
-                                this.height = 107;
-                                this.frameY = 1;
-                                this.x += 10;
+                                this.right();
                                 break;
                             case "ArrowUp":
-                                this.frameY = 2;
-                                this.y -= 10;
+                                this.up();
                                 break;
                             case "ArrowDown":
-                                this.frameY = 0;
-                                this.y += 10;
+                                this.down();
                                 break;
                             default:
                                 break;
                         }
                     });
+                    window.addEventListener("touchend", ()=>{
+                        this.stopAction();
+                    });
+                    window.addEventListener("touchstart", (e)=>{
+                        this.height = 108;
+                        switch (e.target.closest("div").classList[0]) {
+                            case "izquierda":
+                                this.startAction(()=> this.left());
+                                break;
+                            case "derecha":
+                                this.startAction(()=> this.right());
+                                break;
+                            case "arriba":
+                                this.startAction(()=> this.up());
+                                break;
+                            case "abajo":
+                                this.startAction(()=> this.down());
+                                break;
+                            default:
+                                break;
+                        }
+                    });
+                }
+                right(){
+                    this.height = 107;
+                    this.frameY = 1;
+                    this.x += 10;
+                }
+                left(){
+                    this.frameY = 3;
+                    this.x -= 10;
+                }
+                up(){
+                    this.frameY = 2;
+                    this.y -= 10;
+                }
+                down(){
+                    this.frameY = 0;
+                    this.y += 10;
                 }
             }
             const layers = ["backgroundLayers/layer-1.png", "backgroundLayers/layer-2.png", "backgroundLayers/layer-3.png", "backgroundLayers/layer-4.png", "backgroundLayers/layer-5.png"]
